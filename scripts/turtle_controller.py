@@ -19,30 +19,23 @@ class turtle_PID():
         rospy.init_node('turtle_controller', anonymous=True)
         self.rate = rospy.Rate(100) # 10hz
 
-        self.angle_controller = PID()
-        self.distance_controller = PID()
+        self.angle_PID = PID()
+        self.distance_PID = PID()
 
-        self.angle_controller.setKp(1.2)
-        self.angle_controller.setKi(0)
-        self.angle_controller.setKd(0.2)
+        self.angle_PID.setKp(1.4)
+        self.angle_PID.setKi(0)
+        self.angle_PID.setKd(0)
 
-        self.distance_controller.setKp(1.2)
-        self.distance_controller.setKi(0.00001)
-        self.distance_controller.setKd(2)
+        self.distance_PID.setKp(1.4)
+        self.distance_PID.setKi(0)
+        self.distance_PID.setKd(0)
 
         self.msg = Twist()
 
-        self.move2goal()
-
-        
-
-    def get_goal(self):
-
-        self.goal_x = input("Insert your x goal:")
-        self.goal_y = input("Insert your y goal:")
+        self.move_turtle()
 
 
-    def angle_correction(self):
+    def angular_controller(self):
 
         self.R = math.sqrt(math.pow(self.current_pose_x - self.goal_x , 2) + math.pow(self.current_pose_y - self.goal_y , 2))
 
@@ -82,7 +75,7 @@ class turtle_PID():
 
             self.alpha = math.acos((2*math.pow(self.R,2) - math.pow(self.C,2))/(2*math.pow(self.R,2)))
 
-            self.PID_angle = self.angle_controller.update(self.alpha)
+            self.PID_angle = self.angle_PID.update(self.alpha)
 
             self.msg.angular.z = self.PID_angle
 
@@ -90,7 +83,7 @@ class turtle_PID():
 
     
 
-    def distance_correction(self):
+    def distance_controller(self):
 
         self.distance = math.sqrt(math.pow(self.goal_x - self.current_pose_x , 2) + math.pow(self.goal_y - self.current_pose_y, 2 ))
         #self.R = math.sqrt(math.pow(self.current_pose_x - self.goal_x , 2) + math.pow(self.current_pose_y - self.goal_y , 2))
@@ -99,21 +92,26 @@ class turtle_PID():
 
             self.distance = math.sqrt(math.pow(self.goal_x - self.current_pose_x , 2) + math.pow(self.goal_y - self.current_pose_y, 2 ))
 
-            self.PID_distance = self.distance_controller.update(self.distance)
+            self.PID_distance = self.distance_PID.update(self.distance)
 
             self.msg.linear.x = self.PID_distance
 
             self.pub.publish(self.msg)
 
-    
+            
 
-    def move2goal(self):
+    def get_user_input(self):
 
-        self.get_goal()
+        self.goal_x = input("X position:")
+        self.goal_y = input("Y position:")
 
-        self.angle_correction()
+    def move_turtle(self):
 
-        self.distance_correction()
+        self.get_user_input()
+
+        self.angular_controller()
+
+        self.distance_controller()
 
      
 
