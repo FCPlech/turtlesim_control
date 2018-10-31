@@ -19,3 +19,4 @@ After that, you will be asked for a new X and Y turtle position on the terminal.
 ## Changing coeficients (Kp, Ki and Kd)
 
 You may customize the PID controller by changing the angular and distance coeficients from the __init__() method in the turtle_controller.py file.
+ 
